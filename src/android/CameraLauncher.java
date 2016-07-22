@@ -663,7 +663,7 @@ private String ouputModifiedBitmap(Bitmap bitmap, Uri uri) throws IOException {
             // This is a special case to just return the path as no scaling,
             // rotating, nor compressing needs to be done
             if (this.targetHeight == -1 && this.targetWidth == -1 &&
-                    (destType == FILE_URI || destType == NATIVE_URI) && !this.correctOrientation) {
+                    (destType == FILE_URI || destType == NATIVE_URI) && !this.correctOrientation && this.mQuality == 100) {
                 this.callbackContext.success(uri.toString());
             } else {
                 String uriString = uri.toString();
@@ -708,22 +708,15 @@ private String ouputModifiedBitmap(Bitmap bitmap, Uri uri) throws IOException {
 
                 // If sending filename back
                 else if (destType == FILE_URI || destType == NATIVE_URI) {
-                    // Did we modify the image?
-                    if ( (this.targetHeight > 0 && this.targetWidth > 0) ||
-                            (this.correctOrientation && this.orientationCorrected) ) {
-                        try {
-                            String modifiedPath = this.ouputModifiedBitmap(bitmap, uri);
-                            // The modified image is cached by the app in order to get around this and not have to delete you
-                            // application cache I'm adding the current system time to the end of the file url.
-                            this.callbackContext.success("file://" + modifiedPath + "?" + System.currentTimeMillis());
+                    try {
+                        String modifiedPath = this.ouputModifiedBitmap(bitmap, uri);
+                        // The modified image is cached by the app in order to get around this and not have to delete you
+                        // application cache I'm adding the current system time to the end of the file url.
+                        this.callbackContext.success("file://" + modifiedPath + "?" + System.currentTimeMillis());
 
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                            this.failPicture("Error retrieving image.");
-                        }
-                    }
-                    else {
-                        this.callbackContext.success(fileLocation);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        this.failPicture("Error retrieving image.");
                     }
                 }
                 if (bitmap != null) {
